@@ -1,0 +1,35 @@
+# Gen1 Dataset Configuration
+# Based on paper: Ahmed et al. (arXiv:2403.10173v4)
+
+data:
+  root_dir: './data/gen1'  # UPDATE THIS to your Gen1 dataset path
+  height: 304
+  width: 240
+  num_time_bins: 10          # T=10 bins
+  bin_duration_ms: 5.0       # 5ms per bin (50ms total)
+
+model:
+  num_classes: 2             # CORRECTED: Gen1 has 2 classes (car, pedestrian)
+  in_channels: 2             # Polarity channels
+  tau_init: 2.0              # Initial PLIF time constant
+  asab_kernel_size: 5        # TSDC kernel size (paper: "kernel size for Φ_tsdc is set to 5")
+
+training:
+  epochs: 50                 # Paper: "trained end-to-end for 50 epochs on Gen 1"
+  batch_size: 24             # Paper: "batch size of 24"
+  learning_rate: 2.0e-4      # Paper: "learning rate of 2×10^-4"
+  weight_decay: 1.0e-4
+  num_workers: 8
+  checkpoint_dir: './checkpoints'
+  
+  # OneCycle scheduler (paper: "OneCycle learning rate schedule")
+  scheduler:
+    pct_start: 0.3           # Warmup percentage
+    div_factor: 25           # Initial lr = max_lr / div_factor
+    final_div_factor: 10000  # Final lr = max_lr / final_div_factor
+
+# Expected results (from paper Table 1-2):
+# - mAP(.5:.05:.95): 0.35
+# - mAP(.5): 0.61
+# - Parameters: 6.6M
+# - Training time: ~8 hours on 4x 3090 (~3-4 hours on A100)
